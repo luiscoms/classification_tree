@@ -3,7 +3,7 @@
 from pip.req import parse_requirements
 from setuptools import setup, find_packages
 
-__version__ = '0.0.0'
+__version__ = '1.0.0'
 __repo__ = 'http://gitlab.rbs.com.br/rbsdev/classification_tree'
 
 

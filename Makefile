@@ -58,6 +58,16 @@ dist: install
 upload: $(PYTHON_ACTIVATE)
 	$(PYTHON) setup.py sdist upload -r ${PIPY_REPOSITORY}
 
+# make minor PY_VENV_PATH=env
+.PHONY: minor
+minor:
+	$(PYTHON_ACTIVATE) && bumpversion --allow-dirty --verbose minor
+
+# make patch PY_VENV_PATH=env
+.PHONY: patch
+patch:
+	$(PYTHON_ACTIVATE) && bumpversion --allow-dirty --verbose patch
+
 ifndef VERBOSE
 .SILENT:
 endif
