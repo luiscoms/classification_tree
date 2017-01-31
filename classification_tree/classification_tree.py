@@ -94,3 +94,11 @@ class ClassificationTree(object):
         for data in hierarchy:
             slug += data.get('slug', '') + '/'
         return slug
+
+    def get_section_url(self, classification_id):
+        """Return the last url found."""
+        hierarchy = self.get_hierarchy(classification_id)
+
+        # return the last url found
+        filtered = list(filter(lambda c: c.get('url'), hierarchy))
+        return ([{}] + filtered)[-1:][0].get('url')

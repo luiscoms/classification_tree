@@ -1,7 +1,12 @@
 CHANGELOG
 =========
 
-1.1.0
+Next Release
+-----
+
+* Add `get_section_url` method
+
+1.0.0
 -----
 
 * First release
