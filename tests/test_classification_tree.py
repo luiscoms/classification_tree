@@ -47,11 +47,13 @@ class ClassificationTreeTest(unittest.TestCase):
             "_id": "010",
             "name": "Second level - second",
             "parent": "001",
+            "url": "some.parent.url",
             "items": [
               {
                 "_id": "011",
                 "name": "Third level - first",
                 "parent": "010",
+                "url": "some.url",
                 "items": [
                   {
                     "_id": "012",
@@ -97,12 +99,12 @@ class ClassificationTreeTest(unittest.TestCase):
         ([{'_id': '001', 'name': 'First level'}], '001'),
         # expected
         ([{'_id': '001', 'name': 'First level'},
-          {'_id': '010', 'name': 'Second level - second', 'parent': '001'}],
+          {'_id': '010', 'name': 'Second level - second', 'parent': '001', 'url': "some.parent.url"}],
           # input_value
           '010'),
         # expected
         ([{'_id': '001', 'name': 'First level'},
-          {'_id': '010', 'name': 'Second level - second', 'parent': '001'},
+          {'_id': '010', 'name': 'Second level - second', 'parent': '001', 'url': "some.parent.url"},
           {"_id": "015", "name": "Third level - second", "parent": "010"}],
           # input_value
           '015'),
@@ -116,6 +118,16 @@ class ClassificationTreeTest(unittest.TestCase):
     )
     def test_get_hierarchy_shoud_return_list_with_valid_id(self, expected, input_value):
         self.assertEqual(expected, self.ct.get_hierarchy(input_value))
+
+    @unpack
+    @data(
+        (None, None),
+        (None, "004"),
+        ("some.url", "012"),
+        ("some.parent.url", "015"),
+    )
+    def test_get_section_url_should_return_last_url(self, expected, input_value):
+        self.assertEqual(expected, self.ct.get_section_url(input_value))
 
 
 if __name__ == '__main__':

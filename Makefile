@@ -18,7 +18,7 @@ endif
 
 .PHONY: clean
 clean:
-	rm -rf dist/
+	rm -rf .cache .tox/ .coverage build/ dist/ docs/_build htmlcov *.egg-info
 
 .PHONY: install
 install: $(PYTHON_ACTIVATE)
