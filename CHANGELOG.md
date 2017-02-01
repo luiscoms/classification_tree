@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Next Release
+-----
+
+* Add `get_list_by_ids`method
+
 1.1.0
 -----
 
