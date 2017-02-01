@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import requests_mock
+import json
 import unittest
-from ddt import ddt, data, file_data, unpack
+
+from ddt import ddt, data, unpack
 
 from classification_tree import ClassificationTree
+
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+
+import httpretty
 
 @ddt
 class ClassificationTreeTest(unittest.TestCase):
@@ -82,12 +90,44 @@ class ClassificationTreeTest(unittest.TestCase):
         ]
       }
     ]
-    @requests_mock.mock()
-    def setUp(self, mock):
-        mock.get(
-            'http://classifications-api.com.br/tree',
-            json=self.tree)
+
+    @httpretty.activate
+    def setUp(self):
+        self.setUpMockTree()
+        self.setUpMock(self.tree)
         self.ct = ClassificationTree('http://classifications-api.com.br/')
+
+    def setUpMockTree(self):
+        httpretty.register_uri(httpretty.GET,
+                               "http://classifications-api.com.br/tree",
+                               content_type="application/json",
+                               body=json.dumps(self.tree))
+
+    def setUpMock(self, tree, i=0):
+        if i >= 2 or not tree:
+            return
+
+        for item in self.tree:
+            data = item.copy()
+            child = data.pop('items', [])
+
+            # query string
+            qs = {
+                "where": json.dumps({
+                    "_id": {
+                        "$in": [data['_id']]
+                    }
+                })
+            }
+            body = json.dumps({"_items": [data]})
+            httpretty.register_uri(httpretty.GET,
+                                   "http://classifications-api.com.br/?{}".format(urlencode(qs)),
+                                   # "http://classifications-api.com.br?where={}".format(qs["where"]),
+                                   content_type="application/json",
+                                   match_querystring=True,
+                                   body=body)
+
+            self.setUpMock(child, i+1)
 
     @unpack
     @data(([], None))
@@ -128,6 +168,20 @@ class ClassificationTreeTest(unittest.TestCase):
     )
     def test_get_section_url_should_return_last_url(self, expected, input_value):
         self.assertEqual(expected, self.ct.get_section_url(input_value))
+
+    @unpack
+    @data(
+        ([], None),
+        ([], []),
+        ([{"_id": "001", "name": "First level", }], ["001"]),
+        # ([{"_id": "002", "name": "Second level - first", }], ["002"]),
+    )
+    @httpretty.activate
+    def test_get_list_by_ids_should_return_list(self, expected, input_value):
+        # self.setUpMock()
+        self.setUpMock(self.tree)
+
+        self.assertEqual(expected, self.ct.get_list_by_ids(input_value))
 
 
 if __name__ == '__main__':
