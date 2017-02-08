@@ -3,6 +3,7 @@
 """Module show."""
 import logging
 import requests
+import json
 
 __all__ = ['ClassificationTree']
 
@@ -21,6 +22,7 @@ class ClassificationTree(object):
 
     def __init__(self, api_url='http://classifications-api.com.br/', logger=logging.getLogger(__name__)):
         """Constructor."""
+        self.url = api_url.rstrip('/')
         self.logger = logger
         self.logger.debug("init ClassificationTree")
 
@@ -102,3 +104,23 @@ class ClassificationTree(object):
         # return the last url found
         filtered = list(filter(lambda c: c.get('url'), hierarchy))
         return ([{}] + filtered)[-1:][0].get('url')
+
+    def get_list_by_ids(self, classification_ids):
+        """Get all classifications by id from classifications-api."""
+        # self.logger.debug("getting classifications %s", classification_ids)
+        if type(classification_ids) is not list or len(classification_ids) <= 0:
+            return []
+
+        where = {
+            "where": json.dumps({
+                "_id": {
+                    "$in": classification_ids
+                }
+            })
+        }
+        # app.logger.debug("getting classifications where(%s)", where)
+        res = requests.get(
+            self.url,
+            params=where).json()['_items']
+        # app.logger.debug("classifications getted where(%s) %s", where, pformat(res))
+        return res

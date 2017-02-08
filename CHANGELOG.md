@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.2.0
+-----
+
+* Add `get_list_by_ids` method
+
 1.1.0
 -----
 
