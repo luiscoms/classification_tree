@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Next Release
+-----
+
+* Deprecate `api_url` parameter on `get_id_by_slug`
+
 1.2.0
 -----
 
