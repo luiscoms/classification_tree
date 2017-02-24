@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+
 from setuptools import setup, find_packages
 
 __version__ = '1.2.0'
@@ -13,7 +14,7 @@ def read(fname):
 setup(
     name='classification_tree',
     version=__version__,
-    description='Pachage to lead with classifications-api',
+    description='Package to lead with classifications-api',
     long_description=read("README.rst"),
     author='Luis Fernando Gomes',
     author_email='luiscoms@ateliedocodigo.com.br',
