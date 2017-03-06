@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.3.1
+-----
+
+* Fix `extract_id_by_slug` when getting last child classification without `items`
+
 1.3.0
 -----
 
