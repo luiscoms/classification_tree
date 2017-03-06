@@ -67,7 +67,7 @@ class ClassificationTree(object):
     def parse_tree(self, data, slugs):
         for slug in slugs:
             the_dict = self.filter_by_slug(slug, data)
-            data = the_dict['items']
+            data = the_dict.get('items', [])
         return the_dict
 
     def extract_id_by_slug(self, the_json, path):
@@ -75,11 +75,12 @@ class ClassificationTree(object):
         try:
             the_dict = self.parse_tree(the_json, path.split('/'))
         except Exception as e:
-            self.logger.error("Couldn't find an id for this path: %s", path)
+            self.logger.error("Couldn't find an id for this path: %s (%s)", path, e)
         return the_dict
 
     def get_id_by_slug(self, classifications, api_url=None):
         if api_url:
+            self.logger.warning("Deprecated parameter api_url")
             warnings.warn("Deprecated parameter api_url", DeprecationWarning)
         return self.extract_id_by_slug(self.tree, classifications)
 

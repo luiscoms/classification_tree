@@ -35,11 +35,13 @@ mock_tree = [
                             {
                                 "_id": "004",
                                 "name": "Fourth level - first",
+                                "slug": "fourth-level-first",
                                 "parent": "003"
                             },
                             {
                                 "_id": "005",
                                 "name": "Fourth level - second",
+                                "slug": "fourth-level-second",
                                 "parent": "003"
                             },
                             {
@@ -134,7 +136,7 @@ class ClassificationTreeTest(unittest.TestCase):
                                    match_querystring=True,
                                    body=body)
 
-            self.setUpMock(child, i+1)
+            self.setUpMock(child, i + 1)
 
     @unpack
     @data(([], None))
@@ -195,6 +197,9 @@ class ClassificationTreeTest(unittest.TestCase):
         (dict(), "invalid"),
         (mock_tree[0], "first-level"),
         (mock_tree[0]['items'][0], "first-level/second-level-first"),
+        (mock_tree[0]['items'][0]['items'][0], "first-level/second-level-first/third-level-first"),
+        (mock_tree[0]['items'][0]['items'][0]['items'][2],
+         "first-level/second-level-first/third-level-first/fourth-level-third"),
     )
     @httpretty.activate
     def test_get_id_by_slug(self, expected, input_value):
