@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.4.0
+-----
+
+* Add `get_all_classifications` method
+
 1.3.1
 -----
 

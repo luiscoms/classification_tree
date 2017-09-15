@@ -116,3 +116,14 @@ class ClassificationTree(object):
             self.url,
             params=where).json()['_items']
         return res
+
+    def get_all_classifications(self, classifications_ids):
+        """Return a list of hierarchy classifications given a list if classifications."""
+        all_classifications = []
+
+        for classification in classifications_ids:
+            classification_hierarchy = self.get_hierarchy(classification)
+            classifications_id = list(map(lambda x: x['_id'], classification_hierarchy))
+            all_classifications += classifications_id
+
+        return list(set(all_classifications))
