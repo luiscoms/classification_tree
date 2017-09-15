@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-Next Release
+1.4.0
 -----
 
 * Add `get_all_classifications` method
