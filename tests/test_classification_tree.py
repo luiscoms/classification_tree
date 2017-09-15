@@ -207,6 +207,24 @@ class ClassificationTreeTest(unittest.TestCase):
         ret = self.ct.get_id_by_slug(input_value)
         self.assertEqual(expected, ret)
 
+    @data(
+        (list(), list()),
+        (["001"], ["001"]),
+        (["001", "002"], ["002"]),
+        (["001", "002", "003"], ["003"]),
+        (["001", "002", "003", "004"], ["004"]),
+        (["001", "002", "003", "004"], ["004", "004"]),  # repeated values
+        (["001", "002", "003", "004", "010", "011", "012"], ["004", "012"]),
+    )
+    @unpack
+    @httpretty.activate
+    def test_get_all_classifications(self, expected, input_value):
+        self.setUpMock(mock_tree)
+        ret = self.ct.get_all_classifications(input_value)
+        self.assertEqual(len(expected), len(ret))
+        for expected_id in expected:
+            self.assertIn(expected_id, ret)
+
 
 if __name__ == '__main__':
     unittest.main()
