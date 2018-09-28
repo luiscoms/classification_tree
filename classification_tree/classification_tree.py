@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Module show."""
+"""
+Name: ClassificationTree
+Version: 1.4.0
+"""
 import json
 import logging
-import warnings
-
 import requests
+import warnings
 
 __all__ = ['ClassificationTree']
 
