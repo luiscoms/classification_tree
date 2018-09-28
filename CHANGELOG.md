@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Next Release
+-----
+
+* Add filter by type on `get_slug_by_id` method
+
 1.4.0
 -----
 
