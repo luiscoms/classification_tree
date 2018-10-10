@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Module show."""
+"""
+Name: ClassificationTree
+Version: 1.5.0
+"""
 import json
 import logging
-import warnings
-
 import requests
+import warnings
 
 __all__ = ['ClassificationTree']
 
@@ -21,6 +23,7 @@ class ClassificationTree(object):
 
     tree = {}
     classifications_hashmap = {}
+    types = []
     logger = None
 
     def __init__(self, api_url='http://classifications-api.com.br/', logger=logging.getLogger(__name__)):
@@ -40,11 +43,15 @@ class ClassificationTree(object):
             # call recursively
             self.__tree2dict(classification)
 
+        # set all types found
+        self.types = set(filter(lambda t: t, self.types))
+
     def __tree2dict(self, classification):
         """Create a hashmap from classifications."""
         if not type(classification) is dict:
             self.logger.error('classification is not a dict')
             return
+        self.types += [classification.get('type')]
         self.classifications_hashmap[classification['_id']] = classification
         for _classification in classification.get('items', []):
             self.__tree2dict(_classification)
@@ -84,12 +91,16 @@ class ClassificationTree(object):
             warnings.warn("Deprecated parameter api_url", DeprecationWarning)
         return self.extract_id_by_slug(self.tree, classifications)
 
-    def get_slug_by_id(self, classification_id):
+    def get_slug_by_id(self, classification_id, types_in=None):
         hierarchy = self.get_hierarchy(classification_id)
-        slug = ''
-        for data in hierarchy:
-            slug += data.get('slug', '') + '/'
-        return slug
+        if not hierarchy:
+            return ""
+        types_in = types_in or self.types
+        if hierarchy[-1]['type'] not in types_in:
+            return ""
+        return '/'.join(
+            list(map(lambda x: x['slug'], filter(lambda y: y['type'] in types_in, hierarchy)))
+        )
 
     def get_section_url(self, classification_id):
         """Return the last url found."""

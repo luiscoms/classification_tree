@@ -1,0 +1,8 @@
+test:
+ stage: test
+ image: ateliedocodigo/tox
+ script: tox
+ tags:
+    - docker
+    - swarm
+    - edit-hlg

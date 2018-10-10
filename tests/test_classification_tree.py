@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import json
 import unittest
-
 from ddt import ddt, data, unpack
 
 from classification_tree import ClassificationTree
@@ -19,18 +18,21 @@ mock_tree = [
         "_id": "001",
         "name": "First level",
         "slug": "first-level",
+        "type": "main-type",
         "items": [
             {
                 "_id": "002",
                 "name": "Second level - first",
                 "slug": "second-level-first",
                 "parent": "001",
+                "type": "other-type",
                 "items": [
                     {
                         "_id": "003",
                         "name": "Third level - first",
                         "slug": "third-level-first",
                         "parent": "002",
+                        "type": "section",
                         "items": [
                             {
                                 "_id": "004",
@@ -60,6 +62,7 @@ mock_tree = [
                 "slug": "second-level-second",
                 "parent": "001",
                 "url": "some.parent.url",
+                "type": "other-type",
                 "items": [
                     {
                         "_id": "011",
@@ -87,7 +90,9 @@ mock_tree = [
                     {
                         "_id": "015",
                         "name": "Third level - second",
-                        "parent": "010"
+                        "parent": "010",
+                        "slug": "third-level-second",
+                        "type": "another-type"
                     }
                 ]
             }
@@ -145,24 +150,27 @@ class ClassificationTreeTest(unittest.TestCase):
 
     @unpack
     @data(
-        ([{'_id': '001', 'name': 'First level', "slug": "first-level"}], '001'),
+        ([{'_id': '001', 'name': 'First level', "slug": "first-level", "type": "main-type"}], '001'),
         # expected
-        ([{'_id': '001', 'name': 'First level', "slug": "first-level"},
+        ([{'_id': '001', 'name': 'First level', "slug": "first-level", "type": "main-type"},
           {'_id': '010', 'name': 'Second level - second', 'parent': '001',
-           'url': "some.parent.url", "slug": "second-level-second"}],
+           'url': "some.parent.url", "slug": "second-level-second", "type": "other-type"}],
          # input_value
          '010'),
         # expected
-        ([{'_id': '001', 'name': 'First level', "slug": "first-level"},
+        ([{'_id': '001', 'name': 'First level', "slug": "first-level", "type": "main-type"},
           {'_id': '010', 'name': 'Second level - second', 'parent': '001',
-           'url': "some.parent.url", "slug": "second-level-second"},
-          {"_id": "015", "name": "Third level - second", "parent": "010"}],
+           'url': "some.parent.url", "slug": "second-level-second", "type": "other-type"},
+          {"_id": "015", "name": "Third level - second", "parent": "010", "slug": "third-level-second",
+           "type": "another-type"}],
          # input_value
          '015'),
         # expected
-        ([{'_id': '001', 'name': 'First level', "slug": "first-level"},
-          {'_id': '002', 'name': 'Second level - first', 'parent': '001', "slug": "second-level-first"},
-          {"_id": "003", "name": "Third level - first", "parent": "002", "slug": "third-level-first"},
+        ([{'_id': '001', 'name': 'First level', "slug": "first-level", "type": "main-type"},
+          {'_id': '002', 'name': 'Second level - first', 'parent': '001', "slug": "second-level-first",
+           "type": "other-type"},
+          {"_id": "003", "name": "Third level - first", "parent": "002", "slug": "third-level-first",
+           "type": "section"},
           {"_id": "006", "name": "Fourth level - third", "parent": "003", "slug": "fourth-level-third"}],
          # input_value
          '006'),
@@ -184,7 +192,8 @@ class ClassificationTreeTest(unittest.TestCase):
     @data(
         ([], None),
         ([], []),
-        ([{"_id": "015", "name": "Third level - second", "parent": "010", }], ["015"]),
+        ([{"_id": "015", "name": "Third level - second", "parent": "010", "slug": "third-level-second",
+           "type": "another-type"}], ["015"]),
         # ([{"_id": "002", 'name': "Second level - first", "parent": "001", "slug": "second-level-first"}], ["002"]),
     )
     @httpretty.activate
@@ -224,6 +233,38 @@ class ClassificationTreeTest(unittest.TestCase):
         self.assertEqual(len(expected), len(ret))
         for expected_id in expected:
             self.assertIn(expected_id, ret)
+
+    @data(
+        ("first-level", "001"),
+        ("first-level/second-level-first", "002"),
+        ("first-level/second-level-second", "010"),
+        ("first-level/second-level-first/third-level-first", "003"),
+        ("first-level/second-level-second/third-level-second", "015"),
+    )
+    @unpack
+    @httpretty.activate
+    def test_get_slug_by_id(self, expected, input_value):
+        self.setUpMock(mock_tree)
+        ret = self.ct.get_slug_by_id(input_value)
+        self.assertEqual(expected, ret)
+
+    @data(
+        ("first-level", "001", ["main-type"]),
+        ("", "001", ["other-type"]),
+        ("first-level/second-level-first", "002", ["main-type", "other-type"]),
+        ("second-level-first", "002", ["other-type"]),
+        ("", "002", ["main-type"]),
+        ("first-level/second-level-second/third-level-second", "015", ["main-type", "other-type", "another-type"]),
+        ("second-level-second/third-level-second", "015", ["other-type", "another-type"]),
+        ("third-level-second", "015", ["another-type"]),
+        ("", "015", ["invalid-type"]),
+    )
+    @unpack
+    @httpretty.activate
+    def test_get_slug_by_id_with_filter(self, expected, input_value, types_in):
+        self.setUpMock(mock_tree)
+        ret = self.ct.get_slug_by_id(input_value, types_in)
+        self.assertEqual(expected, ret)
 
 
 if __name__ == '__main__':
