@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Name: ClassificationTree
-Version: 1.4.0
+Version: 1.5.0
 """
 import json
 import logging
